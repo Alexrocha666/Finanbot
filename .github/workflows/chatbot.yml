@@ -1,25 +1,29 @@
-name: Chatbot IA
+name: Responder Issue com IA
 
 on:
   issues:
-    types: [opened]  # Isso será ativado quando um novo "issue" for criado.
+    types: [opened]
 
 jobs:
   respond:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Responder com IA
+      - name: Realizando requisição para a IA (Hugging Face)
         run: |
-          # Realizando a chamada para a API da Hugging Face para gerar a resposta.
+          # A mensagem que o bot precisa responder
+          ISSUE_TITLE="${{ github.event.issue.title }}"
+
+          # Requisição para Hugging Face (ou outro modelo de IA)
           RESPONSE=$(curl -s -X POST "https://api-inference.huggingface.co/models/gpt2" \
           -H "Authorization: Bearer ${{ secrets.HF_API_KEY }}" \
           -H "Content-Type: application/json" \
-          -d "{\"inputs\": \"${{ github.event.issue.title }}\"}" | jq -r '.[0].generated_text')
+          -d "{\"inputs\": \"$ISSUE_TITLE\"}" | jq -r '.[0].generated_text')
 
-          echo "Resposta gerada: $RESPONSE"
+          echo "Resposta da IA: $RESPONSE"
 
-          # Usando a API do GitHub para responder o "issue" com a resposta gerada pela IA.
-          curl -X POST -H "Authorization: token ${{ secrets.MY_GITHUB_TOKEN }}" \
+          # Comentar o issue com a resposta gerada
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.MY_GITHUB_TOKEN }}" \
             -d "{\"body\": \"$RESPONSE\"}" \
             "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/comments"
