@@ -1,4 +1,4 @@
-name: FinanBot Responder
+name: Chatbot IA
 on:
   issues:
     types: [opened]
@@ -14,6 +14,8 @@ jobs:
           -H "Content-Type: application/json" \
           -d "{\"inputs\": \"${{ github.event.issue.title }}\"}" | jq -r '.[0].generated_text')
 
-          curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          echo "Resposta gerada: $RESPONSE"
+
+          curl -X POST -H "Authorization: token ${{ secrets.MY_GITHUB_TOKEN }}" \
             -d "{\"body\": \"$RESPONSE\"}" \
             "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/comments"
