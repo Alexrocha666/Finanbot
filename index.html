@@ -29,10 +29,10 @@
         document.getElementById("userInput").value = "";
 
         // Enviar mensagem como um novo "issue" no GitHub
-        let response = await fetch("https://api.github.com/repos/SEU_USUARIO/Chatbot-GitHub/issues", {
+        let response = await fetch("https://api.github.com/repos/Alexrocha666/Chatbot-GitHub/issues", {
             method: "POST",
             headers: {
-                "Authorization": "Bearer SEU_GITHUB_TOKEN",
+                "Authorization": "Bearer MY_GITHUB_TOKEN",
                 "Accept": "application/vnd.github.v3+json",
                 "Content-Type": "application/json"
             },
