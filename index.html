@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chatbot GitHub</title>
+    <title>Chatbot Inteligente</title>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; }
         #chat { width: 80%; max-width: 600px; margin: 20px auto; border: 1px solid #ccc; padding: 10px; }
@@ -28,18 +28,24 @@
         chat.innerHTML += `<div class='message user'>Você: ${input}</div>`;
         document.getElementById("userInput").value = "";
 
-        let response = await fetch(`https://api.github.com/repos/Alexrocha666/Finanbot-github/issues`, {
+        // Enviar mensagem como um novo "issue" no GitHub
+        let response = await fetch("https://api.github.com/repos/SEU_USUARIO/Chatbot-GitHub/issues", {
             method: "POST",
             headers: {
                 "Authorization": "Bearer SEU_GITHUB_TOKEN",
-                "Accept": "application/vnd.github.v3+json"
+                "Accept": "application/vnd.github.v3+json",
+                "Content-Type": "application/json"
             },
-            body: JSON.stringify({ title: input, body: "Processando...", labels: ["chat"] })
+            body: JSON.stringify({
+                title: input,
+                body: "Aguardando resposta...",
+                labels: ["chat"]
+            })
         });
 
         let jsonResponse = await response.json();
         setTimeout(() => {
-            chat.innerHTML += `<div class='message bot'>Bot: ${jsonResponse.title}</div>`;
+            chat.innerHTML += `<div class='message bot'>Bot: Aguardando resposta...</div>`;
         }, 2000);
     }
 </script>
