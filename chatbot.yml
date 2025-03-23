@@ -10,6 +10,6 @@ jobs:
       - name: Responder ao Chatbot
         run: |
           RESPONSE=$(curl -s "https://api.chucknorris.io/jokes/random" | jq -r '.value')
-          curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          curl -X POST -H "Authorization: token ${{ secrets.MY_GITHUB_TOKEN }}" \
             -d "{\"body\": \"$RESPONSE\"}" \
             "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/comments"
