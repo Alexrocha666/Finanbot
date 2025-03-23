@@ -28,7 +28,10 @@
         chat.innerHTML += `<div class='message user'>Você: ${input}</div>`;
         document.getElementById("userInput").value = "";
 
-        // Enviar mensagem como um novo "issue" no GitHub
+        // Exibir mensagem de carregamento enquanto aguarda a resposta
+        chat.innerHTML += `<div class='message bot'>Bot: Aguardando resposta...</div>`;
+
+        // Enviar a mensagem como um novo "issue" no GitHub
         let response = await fetch("https://api.github.com/repos/Alexrocha666/Chatbot-GitHub/issues", {
             method: "POST",
             headers: {
@@ -37,16 +40,29 @@
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                title: input,
-                body: "Aguardando resposta...",
-                labels: ["chat"]
+                title: input,  // A mensagem do usuário será o título do issue
+                body: "Aguardando resposta...",  // Corpo do issue, pode ser um texto padrão
+                labels: ["chat"]  // Pode usar a label 'chat' para identificar facilmente os issues
             })
         });
 
+        // Aguarda a criação do issue e pega a resposta do GitHub
         let jsonResponse = await response.json();
-        setTimeout(() => {
-            chat.innerHTML += `<div class='message bot'>Bot: Aguardando resposta...</div>`;
-        }, 2000);
+        console.log("Issue criado:", jsonResponse);
+
+        // Agora, espera o workflow de GitHub Actions responder e atualizar o "issue"
+        let commentResponse = await fetch(jsonResponse.comments_url, {
+            method: "GET",
+            headers: {
+                "Authorization": "Bearer MY_GITHUB_TOKEN"
+            }
+        });
+
+        let comments = await commentResponse.json();
+        let botReply = comments[comments.length - 1].body; // Último comentário do issue
+
+        // Atualiza a mensagem do bot com a resposta gerada
+        chat.innerHTML = chat.innerHTML.replace("Aguardando resposta...", `Bot: ${botReply}`);
     }
 </script>
 
