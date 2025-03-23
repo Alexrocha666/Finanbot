@@ -1,29 +1,29 @@
-name: Responder Issue com IA
+name: Chatbot Workflow
 
 on:
   issues:
-    types: [opened]
+    types: [opened]  # O workflow será acionado quando um issue for aberto
 
 jobs:
-  respond:
-    runs-on: ubuntu-latest
+  respond_to_issue:
+    runs-on: ubuntu-latest  # Usaremos uma máquina virtual Linux para rodar o script
 
     steps:
-      - name: Realizando requisição para a IA (Hugging Face)
+      - name: Checkout repository
+        uses: actions/checkout@v2  # Faz checkout do código do repositório
+
+      - name: Set up Python
+        uses: actions/setup-python@v2  # Configura a versão do Python
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
         run: |
-          # A mensagem que o bot precisa responder
-          ISSUE_TITLE="${{ github.event.issue.title }}"
+          pip install requests  # Instala a biblioteca de requisições
 
-          # Requisição para Hugging Face (ou outro modelo de IA)
-          RESPONSE=$(curl -s -X POST "https://api-inference.huggingface.co/models/gpt2" \
-          -H "Authorization: Bearer ${{ secrets.HF_API_KEY }}" \
-          -H "Content-Type: application/json" \
-          -d "{\"inputs\": \"$ISSUE_TITLE\"}" | jq -r '.[0].generated_text')
-
-          echo "Resposta da IA: $RESPONSE"
-
-          # Comentar o issue com a resposta gerada
-          curl -X POST \
-            -H "Authorization: token ${{ secrets.MY_GITHUB_TOKEN }}" \
-            -d "{\"body\": \"$RESPONSE\"}" \
-            "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/comments"
+      - name: Run chatbot script
+        run: |
+          python3 chatbot.py  # Executa o script Python para interagir com a IA e postar no GitHub
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}  # Passando o token do GitHub
+          HUGGINGFACE_API_KEY: ${{ secrets.HF_API_KEY }}  # Passando a chave da Hugging Face
