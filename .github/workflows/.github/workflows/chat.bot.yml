@@ -1,0 +1,19 @@
+name: FinanBot Responder
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  respond:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Responder com IA
+        run: |
+          RESPONSE=$(curl -s -X POST "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-v0.1" \
+          -H "Authorization: Bearer ${{ secrets.HF_API_KEY }}" \
+          -H "Content-Type: application/json" \
+          -d "{\"inputs\": \"${{ github.event.issue.title }}\"}" | jq -r '.[0].generated_text')
+
+          curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -d "{\"body\": \"$RESPONSE\"}" \
+            "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/comments"
